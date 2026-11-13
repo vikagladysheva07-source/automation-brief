@@ -228,7 +228,7 @@ body.intro .top .title,body.intro .top .bar{visibility:hidden}
   .chips{gap:12px}
   .chip{padding:17px 18px;min-height:56px;border-radius:16px}
   input[type=text]{min-height:56px}
-  textarea{min-height:132px}
+  textarea{min-height:120px;overflow:hidden;resize:none}
   .nav{position:static;margin:auto 0 0;padding:28px 0 calc(24px + env(safe-area-inset-bottom));background:none}
 }
 </style>
@@ -587,6 +587,25 @@ const BLOCKS = [
   const st = document.getElementById('stage');
   if (st) new MutationObserver(() => { if (btn && !btn.isConnected) stop(); scan(); }).observe(st, {childList: true, subtree: true});
   scan();
+})();
+</script>
+
+<script>/* поля ответа растут по тексту и подсказке, ничего не обрезается */
+(() => {
+  function fit(f) {
+    const v = f.value;
+    f.style.height = 'auto';
+    if (!v) f.value = f.placeholder || '';
+    const h = f.scrollHeight;
+    if (!v) f.value = '';
+    f.style.height = (h + 2) + 'px';
+  }
+  const all = () => document.querySelectorAll('#stage textarea').forEach(fit);
+  document.addEventListener('input', e => { if (e.target.matches && e.target.matches('#stage textarea')) fit(e.target); });
+  addEventListener('resize', all);
+  const st = document.getElementById('stage');
+  if (st) new MutationObserver(all).observe(st, {childList: true, subtree: true});
+  all();
 })();
 </script>
 </body>
