@@ -208,13 +208,23 @@ body.intro .top .title,body.intro .top .bar{visibility:hidden}
 .mic:hover{border-color:rgba(196,164,255,.7)}
 .mic.on{color:#fff;background:linear-gradient(180deg,rgba(196,164,255,.45),rgba(155,111,232,.3));border-color:rgba(225,208,255,.8);animation:micp 1.2s ease-in-out infinite}
 @keyframes micp{0%,100%{box-shadow:0 0 0 0 rgba(155,111,232,.55)}50%{box-shadow:0 0 0 8px rgba(155,111,232,0)}}
+
+/* кнопка «Назад» рядом с «Далее» */
+.nav .backbtn{background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02))!important;border:1px solid rgba(214,190,255,.22)!important;color:var(--text);box-shadow:none!important;gap:8px}
+.nav .backbtn svg{width:18px;height:18px}
+@media(max-width:600px){
+  .nav:has(.backbtn){flex-direction:row!important;align-items:stretch}
+  .nav .backbtn{width:auto!important;flex:0 0 auto;padding:0 18px}
+  .nav .backbtn span{display:none}
+  .nav:has(.backbtn) #next{flex:1;width:auto!important}
+}
 </style>
 </head>
 <body>
 <div id="app"></div>
 <script>
 const CFG = {
-  headerTitle: 'Бриф',
+  headerTitle: 'БРИФ',
   key: 'klementina-brief-v1',
   pathQ: '',
   paths: [],
@@ -377,7 +387,9 @@ const BLOCKS = [
   function navFor(q) {
     const nav = $('nav'); if (!nav) return;
     const answered = has(q);
-    let h = `<button type="button" class="btn" id="next" aria-disabled="${q.req && !answered}">Далее${ARROW}</button>`;
+    const first = seq()[0] && seq()[0].id === q.id;
+    let h = (first ? '' : `<button type="button" class="btn backbtn" id="prev" aria-label="Назад к прошлому вопросу">${svg('<path d="M19 12H5M11 6l-6 6 6 6"/>')}<span>Назад</span></button>`) +
+      `<button type="button" class="btn" id="next" aria-disabled="${q.req && !answered}">Далее${ARROW}</button>`;
     nav.innerHTML = h;
   }
   const curQ = () => seq().find(q => q.id === cur);
@@ -502,6 +514,7 @@ const BLOCKS = [
     const t = e.target.closest('button, a'); if (!t) return;
     if (t.id === 'start') return next();
     if (t.id === 'next') return next();
+    if (t.id === 'prev') return back();
     if (t.id === 'skip') { const s = seq(), i = s.findIndex(q => q.id === cur); return go(i < s.length - 1 ? s[i + 1].id : '__done'); }
     if (t.id === 'redo') return back();
     if (t.id === 'copy') {
